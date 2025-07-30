@@ -14,7 +14,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
-  base: "https://github.com/alansory/sagara",
+  base: "/sagara/",
+  build: {
+    chunkSizeWarningLimit: 600, // Optional: to suppress chunk size warning
+  },
   server: {
     proxy: {
       "/api": {

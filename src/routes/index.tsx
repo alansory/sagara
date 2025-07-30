@@ -13,6 +13,7 @@ const AppRoutes: React.FC = () => {
       {/* <Route path="/" element={<Home />} /> */}
       {/* <Route path="/trade" element={<Trade />} /> */}
       <Route path="/" element={<Scan />} />
+      <Route path="/sagara" element={<Scan />} />
       {/* <Route path="/create" element={<Create />} />
       <Route path="/swap" element={<Swap />} />
       <Route path="/portfolio" element={<Portfolio />} /> */}
