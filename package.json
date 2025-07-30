@@ -12,8 +12,10 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@solana/web3.js": "^1.98.0",
+    "@meteora-ag/dlmm": "^1.5.5",
+    "@solana/web3.js": "^1.98.2",
     "@tailwindcss/vite": "^4.1.4",
+    "buffer": "^6.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.510.0",
@@ -23,7 +25,8 @@
     "react-router-dom": "^7.5.1",
     "react-toastify": "^11.0.5",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss": "^4.1.4"
+    "tailwindcss": "^4.1.4",
+    "vite-plugin-node-polyfills": "^0.24.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

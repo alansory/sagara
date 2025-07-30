@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { HiAdjustments } from 'react-icons/hi';
 import { BiSortAlt2 } from 'react-icons/bi';
 import { FiRefreshCw } from 'react-icons/fi';
-
 interface TokenData {
   id: number;
   symbol: string;
@@ -31,32 +29,97 @@ const Scan: React.FC = () => {
   const [tokens, setTokens] = useState<TokenData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('DAMM V2'); // Track active tab
   const [sortOption, setSortOption] = useState<string>('created_at_desc');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  const [isAutoRefresh, setIsAutoRefresh] = useState<boolean>(true); // New state for auto-refresh
+  const [isAutoRefresh, setIsAutoRefresh] = useState<boolean>(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Map sortOption to API parameters
-  const getApiSortParams = (option: string) => {
-    switch (option) {
-      case 'tvl_asc':
-        return { order_by: 'tvl', order: 'asc' };
-      case 'tvl_desc':
-        return { order_by: 'tvl', order: 'desc' };
-      case 'created_at_asc':
-        return { order_by: 'created_at_slot_timestamp', order: 'asc' };
-      case 'created_at_desc':
-      default:
-        return { order_by: 'created_at_slot_timestamp', order: 'desc' };
+  // Map sortOption to API parameters for DAMM V2 and DLMM
+  const getApiSortParams = (option: string, tab: string) => {
+    if (tab === 'DAMM V2') {
+      switch (option) {
+        case 'tvl_asc':
+          return { order_by: 'tvl', order: 'asc' };
+        case 'tvl_desc':
+          return { order_by: 'tvl', order: 'desc' };
+        case 'created_at_asc':
+          return { order_by: 'created_at_slot_timestamp', order: 'asc' };
+        case 'created_at_desc':
+          return { order_by: 'created_at_slot_timestamp', order: 'desc' };
+        default:
+          return { order_by: 'created_at_slot_timestamp', order: 'desc' };
+      }
+    } else if (tab === 'DLMM') {
+      switch (option) {
+        case 'tvl_asc':
+          return { sort_key: 'tvl', order: 'asc' };
+        case 'tvl_desc':
+          return { sort_key: 'tvl', order: 'desc' };
+        case 'volume_asc':
+          return { sort_key: 'volume', order: 'asc' };
+        case 'volume_desc':
+          return { sort_key: 'volume', order: 'desc' };
+        case 'volume30m_asc':
+          return { sort_key: 'volume30m', order: 'asc' };
+        case 'volume30m_desc':
+          return { sort_key: 'volume30m', order: 'desc' };
+        case 'volume1h_asc':
+          return { sort_key: 'volume1h', order: 'asc' };
+        case 'volume1h_desc':
+          return { sort_key: 'volume1h', order: 'desc' };
+        case 'volume2h_asc':
+          return { sort_key: 'volume2h', order: 'asc' };
+        case 'volume2h_desc':
+          return { sort_key: 'volume2h', order: 'desc' };
+        case 'volume4h_asc':
+          return { sort_key: 'volume4h', order: 'asc' };
+        case 'volume4h_desc':
+          return { sort_key: 'volume4h', order: 'desc' };
+        case 'volume12h_asc':
+          return { sort_key: 'volume12h', order: 'asc' };
+        case 'volume12h_desc':
+          return { sort_key: 'volume12h', order: 'desc' };
+        case 'feetvlratio_asc':
+          return { sort_key: 'feetvlratio', order: 'asc' };
+        case 'feetvlratio_desc':
+          return { sort_key: 'feetvlratio', order: 'desc' };
+        case 'feetvlratio30m_asc':
+          return { sort_key: 'feetvlratio30m', order: 'asc' };
+        case 'feetvlratio30m_desc':
+          return { sort_key: 'feetvlratio30m', order: 'desc' };
+        case 'feetvlratio1h_asc':
+          return { sort_key: 'feetvlratio1h', order: 'asc' };
+        case 'feetvlratio1h_desc':
+          return { sort_key: 'feetvlratio1h', order: 'desc' };
+        case 'feetvlratio2h_asc':
+          return { sort_key: 'feetvlratio2h', order: 'asc' };
+        case 'feetvlratio2h_desc':
+          return { sort_key: 'feetvlratio2h', order: 'desc' };
+        case 'feetvlratio4h_asc':
+          return { sort_key: 'feetvlratio4h', order: 'asc' };
+        case 'feetvlratio4h_desc':
+          return { sort_key: 'feetvlratio4h', order: 'desc' };
+        case 'feetvlratio12h_asc':
+          return { sort_key: 'feetvlratio12h', order: 'asc' };
+        case 'feetvlratio12h_desc':
+          return { sort_key: 'feetvlratio12h', order: 'desc' };
+        case 'lm_asc':
+          return { sort_key: 'lm', order: 'asc' };
+        case 'lm_desc':
+          return { sort_key: 'lm', order: 'desc' };
+        default:
+          return { sort_key: 'volume1h', order: 'asc' };
+      }
     }
+    return { sort_key: 'volume1h', order: 'asc' };
   };
 
-  // Fetch data from Meteora API
-  const fetchTokens = async () => {
+  // Fetch data for DAMM V2 tab
+  const fetchDammV2Tokens = async () => {
     try {
       setLoading(true);
-      const { order_by, order } = getApiSortParams(sortOption);
+      const { order_by, order } = getApiSortParams(sortOption, 'DAMM V2');
       const response = await fetch(
         `https://dammv2-api.meteora.ag/pools?page=1&limit=100&order_by=${order_by}&order=${order}`
       );
@@ -65,7 +128,6 @@ const Scan: React.FC = () => {
       }
       const { data } = await response.json();
 
-      // Map API data to TokenData interface
       const mappedTokens: TokenData[] = data.map((pool: any, index: number) => ({
         id: index + 1,
         symbol: pool.token_a_symbol,
@@ -73,13 +135,12 @@ const Scan: React.FC = () => {
         poolAddress: pool.pool_address,
         contract: pool.token_a_mint,
         imageUri: 'https://prod-tensor-creators-s3.s3.us-east-1.amazonaws.com/image/adf0c9f9-8438-4ed3-862a-b82d8f380495',
-        TVL: pool.tvl || 0,
-        '24Fee': pool.fee24h || 0,
+        TVL: Number(pool.tvl) || 0, // Ensure TVL is a number
+        '24Fee': Number(pool.fee24h) || 0, // Ensure fee is a number
         createdAt: timeAgo(pool.created_at_slot_timestamp),
         timestamp: pool.created_at_slot_timestamp,
       }));
 
-      // Remove duplicates by poolName
       const uniqueTokens = Array.from(
         new Map(mappedTokens.map((token) => [token.poolName, token])).values()
       );
@@ -87,22 +148,76 @@ const Scan: React.FC = () => {
       setTokens(uniqueTokens);
       setLoading(false);
     } catch (err) {
-      setError('Error fetching token data. Please try again later.');
       setLoading(false);
+      setError('Error fetching DAMM V2 token data. Please try again later.');
+    }
+  };
+
+  // Fetch data for DLMM tab
+  const fetchDlmmTokens = async () => {
+    try {
+      setLoading(true);
+      const { sort_key, order } = getApiSortParams(sortOption, 'DLMM');
+      const response = await fetch(
+        `https://dlmm-api.meteora.ag/pair/all_with_pagination?page=1&limit=100&sort_key=${sort_key}&order=${order}`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch DLMM data from API');
+      }
+
+      const data = await response.json();
+      console.log('DLMM Pairs from API:', data);
+
+      // Map API response to TokenData interface
+      const mappedTokens: TokenData[] = data.pairs.map((pair: any, index: number) => {
+        const poolName = `${pair.name || 'Unknown'}`;
+        const timestamp = Math.floor(Date.now() / 1000); // Placeholder since created_at is not available
+        // Normalize TVL and fees to two decimal places for consistent USD formatting
+        const tvl = Number(pair.liquidity) ? Number(Number(pair.liquidity).toFixed(2)) : 0;
+        const fees = Number(pair.fees_24h) ? Number(Number(pair.fees_24h).toFixed(2)) : 0;
+        const symbol = pair.name ? pair.name.split('-')[0] : 'Unknown';
+        return {
+          id: index + 1,
+          symbol: symbol,
+          poolName,
+          poolAddress: pair.address,
+          contract: pair.mint_x || '',
+          imageUri: 'https://prod-tensor-creators-s3.s3.us-east-1.amazonaws.com/image/adf0c9f9-8438-4ed3-862a-b82d8f380495',
+          TVL: tvl,
+          '24Fee': fees,
+          createdAt: "-",
+          timestamp,
+        };
+      });
+
+      setTokens(mappedTokens);
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      console.error('Error in fetchDlmmTokens:', err);
+      setError('Error fetching DLMM token data. Please try again later.');
+    }
+  };
+
+  // Handle tab switch
+  const handleTabSwitch = (tab: string) => {
+    setActiveTab(tab);
+    setTokens([]); // Clear tokens when switching tabs
+    if (tab === 'DAMM V2') {
+      fetchDammV2Tokens();
+    } else if (tab === 'DLMM') {
+      fetchDlmmTokens();
     }
   };
 
   // Handle sort option selection
   const handleSortSelect = (option: string) => {
-    setSortOption(option);
+    setSortOption(option);        // ini akan trigger useEffect
     setIsDropdownOpen(false);
-    fetchTokens();
+    setTokens([]);                // kosongkan data lama
+    setLoading(true);
   };
-
-  // Handle refresh button click
-  const handleRefresh = () => {
-    fetchTokens();
-  };
+  
 
   // Toggle auto-refresh
   const toggleAutoRefresh = () => {
@@ -122,19 +237,27 @@ const Scan: React.FC = () => {
 
   // Fetch data on component mount and set up auto-refresh
   useEffect(() => {
-    fetchTokens();
-
+    if (activeTab === 'DAMM V2') {
+      fetchDammV2Tokens();
+    } else if (activeTab === 'DLMM') {
+      fetchDlmmTokens();
+    }
+  
     let intervalId: NodeJS.Timeout | null = null;
     if (isAutoRefresh) {
       intervalId = setInterval(() => {
-        fetchTokens();
+        if (activeTab === 'DAMM V2') {
+          fetchDammV2Tokens();
+        } else if (activeTab === 'DLMM') {
+          fetchDlmmTokens();
+        }
       }, 10000);
     }
-
+  
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isAutoRefresh]); // Depend on isAutoRefresh to restart interval when toggled
+  }, [isAutoRefresh, activeTab, sortOption]);  
 
   return (
     <div className="min-h-screen bg-black text-white mt-7">
@@ -149,8 +272,18 @@ const Scan: React.FC = () => {
       {/* Navigation */}
       <div className="flex flex-col md:flex-row items-center justify-between px-6 py-3 text-base gap-4">
         <div className="w-full md:w-auto flex flex-wrap justify-center md:justify-start gap-4 md:gap-6 items-center">
-          <button className="text-orange-500 text-sm hover:opacity-80">DAMM V2</button>
-          <button className="text-gray-400 text-sm hover:opacity-80">DLMM</button>
+          <button
+            className={`text-sm hover:opacity-80 ${activeTab === 'DAMM V2' ? 'text-orange-500' : 'text-gray-400'}`}
+            onClick={() => handleTabSwitch('DAMM V2')}
+          >
+            DAMM V2
+          </button>
+          <button
+            className={`text-sm hover:opacity-80 ${activeTab === 'DLMM' ? 'text-orange-500' : 'text-gray-400'}`}
+            onClick={() => handleTabSwitch('DLMM')}
+          >
+            DLMM
+          </button>
         </div>
         <div className="w-full md:flex-1 md:mx-6">
           <input
@@ -170,9 +303,6 @@ const Scan: React.FC = () => {
           >
             <FiRefreshCw className="text-lg" /> {isAutoRefresh ? 'Auto-Refresh' : 'Auto-Refresh'}
           </button>
-          {/* <button className="text-gray-400 text-sm hover:opacity-80 flex items-center gap-2">
-            <HiAdjustments className="text-lg" /> Filters
-          </button> */}
           <div className="relative" ref={dropdownRef}>
             <button
               className="text-gray-400 text-sm hover:opacity-80 flex items-center gap-2"
@@ -183,46 +313,203 @@ const Scan: React.FC = () => {
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 border border-gray-700 bg-[#18181a] rounded-md shadow-lg z-10">
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                  className={`block w-full text-left px-4 py-2 text-sm ${
+                    sortOption === 'tvl_asc'
+                      ? 'bg-orange-600 text-white'
+                      : 'text-gray-300 hover:bg-gray-700'
+                  }`}
                   onClick={() => handleSortSelect('tvl_asc')}
                 >
-                  TVL Ascending
+                  TVL Asc
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                  className={`block w-full text-left px-4 py-2 text-sm ${
+                    sortOption === 'tvl_desc'
+                      ? 'bg-orange-600 text-white'
+                      : 'text-gray-300 hover:bg-gray-700'
+                  }`}
                   onClick={() => handleSortSelect('tvl_desc')}
                 >
-                  TVL Descending
+                  TVL Desc
                 </button>
-                <button
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
-                  onClick={() => handleSortSelect('created_at_asc')}
-                >
-                  Created At Ascending
-                </button>
-                <button
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
-                  onClick={() => handleSortSelect('created_at_desc')}
-                >
-                  Created At Descending
-                </button>
+                {activeTab === 'DAMM V2' && (
+                  <>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'created_at_asc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('created_at_asc')}
+                    >
+                      Created At Asc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'created_at_desc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('created_at_desc')}
+                    >
+                      Created At Desc
+                    </button>
+                  </>
+                )}
+                {activeTab === 'DLMM' && (
+                  <>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume_asc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume_asc')}
+                    >
+                      Volume Asc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume_desc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume_desc')}
+                    >
+                      Volume Desc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume30m_asc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume30m_asc')}
+                    >
+                      Volume 30m Asc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume30m_desc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume30m_desc')}
+                    >
+                      Volume 30m Desc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume1h_asc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume1h_asc')}
+                    >
+                      Volume 1h Asc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume1h_desc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume1h_desc')}
+                    >
+                      Volume 1h Desc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume2h_asc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume2h_asc')}
+                    >
+                      Volume 2h Asc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume2h_desc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume2h_desc')}
+                    >
+                      Volume 2h Desc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume4h_asc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume4h_asc')}
+                    >
+                      Volume 4h Asc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume4h_desc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume4h_desc')}
+                    >
+                      Volume 4h Desc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume12h_asc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume12h_asc')}
+                    >
+                      Volume 12h Asc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'volume12h_desc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('volume12h_desc')}
+                    >
+                      Volume 12h Desc
+                   </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'lm_asc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('lm_asc')}
+                    >
+                      LM Asc
+                    </button>
+                    <button
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        sortOption === 'lm_desc'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700'
+                      }`}
+                      onClick={() => handleSortSelect('lm_desc')}
+                    >
+                      LM Desc
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
-          {/* <button
-            className="text-gray-400 text-sm hover:opacity-80 flex items-center gap-2"
-            onClick={handleRefresh}
-            title="Refresh data"
-          >
-            <FiRefreshCw className="text-lg" /> Refresh
-          </button> */}
         </div>
       </div>
 
       {/* Loading and Error States */}
       {loading && (
         <div className="text-center py-10">
-          <p className="text-gray-400">Loading token data...</p>
+          <p className="text-gray-400">Loading {activeTab} token data...</p>
         </div>
       )}
       {error && (
