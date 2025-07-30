@@ -181,7 +181,7 @@ const Scan: React.FC = () => {
               <BiSortAlt2 className="text-lg" /> Sort By
             </button>
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg z-10">
+              <div className="absolute right-0 mt-2 w-48 border border-gray-700 bg-[#18181a] rounded-md shadow-lg z-10">
                 <button
                   className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
                   onClick={() => handleSortSelect('tvl_asc')}
