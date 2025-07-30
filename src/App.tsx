@@ -1,6 +1,5 @@
 import React from "react";
 import Header from "./components/common/Header";
-// import AirbnbHeader from "./components/ui/Header";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import AppRoutes from "./routes"; 
@@ -8,7 +7,6 @@ import AppRoutes from "./routes";
 const App: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen text-white">
-      {/* <AirbnbHeader /> */}
       <Header />
       <main className="flex-grow">
         <AppRoutes />

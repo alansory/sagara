@@ -97,7 +97,7 @@ const Header: React.FC = () => {
         const balance = await solConnection.getBalance(new PublicKey(address));
         
         setWalletAddress(address);
-        setBalance(balance/LAMPORTS_PER_SOL);
+        setBalance(balance / LAMPORTS_PER_SOL);
   
         await fetch("/api/auth/web3-login", {
           method: "POST",
@@ -112,7 +112,7 @@ const Header: React.FC = () => {
             chain: "solana",
           }),
         })
-          .then(async(response) => {
+          .then(async (response) => {
             if (!response.ok) {
               throw new Error(`Server responded with status ${response.status}`);
             }
@@ -120,20 +120,20 @@ const Header: React.FC = () => {
             const walletData = {
               address,
               balance,
-              chain:selectedChain,
+              chain: selectedChain,
               token: loginData.data.token,
-              user: loginData.data.user
+              user: loginData.data.user,
             };
-
+  
             localStorage.setItem('pumpAuthData', JSON.stringify(walletData));
-            return loginData
+            return loginData;
           })
           .catch((error) => {
             console.error("CORS or server error:", error);
             alert("Failed to connect to the server. Please check your network or server configuration.");
           });
       } catch (error) {
-        console.error("Failed to connect Solana wallet:", error);
+        console.error("Failed to connect Solana wallet:", error instanceof Error ? error.message : String(error));
       }
     } else if (selectedChain === "ethereum" && window.ethereum) {
       console.log("Attempting to connect wallet", { 
@@ -187,7 +187,7 @@ const Header: React.FC = () => {
             alert("Failed to connect to the server. Please check your network or server configuration.");
           });
       } catch (error) {
-        console.error("Failed to connect Ethereum wallet:", error.message || error);
+        console.error("Failed to connect Ethereum wallet:", error instanceof Error ? error.message : String(error));
       }
     } else {
       alert(`No ${selectedChain} wallet found. Please install a compatible wallet (e.g., MetaMask for Ethereum, Phantom for Solana).`);
