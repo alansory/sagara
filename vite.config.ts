@@ -14,7 +14,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
-  base: "/",
+  base: "https://github.com/alansory/sagara",
   server: {
     proxy: {
       "/api": {
