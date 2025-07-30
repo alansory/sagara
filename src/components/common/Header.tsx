@@ -237,12 +237,12 @@ const Header: React.FC = () => {
       <header className="flex justify-between items-center px-4.5 py-1.5 h-14 bg-black border-b border-gray-800 z-50">
         <div className="flex items-center">
           {/* Mobile Menu Button */}
-          <button 
+          {/* <button 
             className="md:hidden text-white"
             onClick={toggleMobileMenu}
           >
             <HiMenu size={24} />
-          </button>
+          </button> */}
           {/* <img alt="Logo" loading="lazy" decoding="async" data-nimg="1" src={Logo} className="ml-2 sm:ml-0 h-[50px] w-[55px] sm:w-[55px] sm:h-[50px]" /> */}
           {/* <IoEarth size={25} className="text-orange-500 sm:w-[30px] sm:h-[30px] ml-2 sm:ml-0" /> */}
           <Link 
