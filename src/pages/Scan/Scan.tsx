@@ -33,6 +33,7 @@ const Scan: React.FC = () => {
   const [sortOption, setSortOption] = useState<string>('created_at_desc');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [isAutoRefresh, setIsAutoRefresh] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Map sortOption to API parameters for DAMM V2 and DLMM
@@ -53,79 +54,92 @@ const Scan: React.FC = () => {
     } else if (tab === 'DLMM') {
       switch (option) {
         case 'tvl_asc':
-          return { sort_key: 'tvl', order: 'asc' };
+          return { order_by: 'tvl', order: 'asc' };
         case 'tvl_desc':
-          return { sort_key: 'tvl', order: 'desc' };
+          return { order_by: 'tvl', order: 'desc' };
         case 'volume_asc':
-          return { sort_key: 'volume', order: 'asc' };
+          return { order_by: 'volume', order: 'asc' };
         case 'volume_desc':
-          return { sort_key: 'volume', order: 'desc' };
+          return { order_by: 'volume', order: 'desc' };
         case 'volume30m_asc':
-          return { sort_key: 'volume30m', order: 'asc' };
+          return { order_by: 'volume30m', order: 'asc' };
         case 'volume30m_desc':
-          return { sort_key: 'volume30m', order: 'desc' };
+          return { order_by: 'volume30m', order: 'desc' };
         case 'volume1h_asc':
-          return { sort_key: 'volume1h', order: 'asc' };
+          return { order_by: 'volume1h', order: 'asc' };
         case 'volume1h_desc':
-          return { sort_key: 'volume1h', order: 'desc' };
+          return { order_by: 'volume1h', order: 'desc' };
         case 'volume2h_asc':
-          return { sort_key: 'volume2h', order: 'asc' };
+          return { order_by: 'volume2h', order: 'asc' };
         case 'volume2h_desc':
-          return { sort_key: 'volume2h', order: 'desc' };
+          return { order_by: 'volume2h', order: 'desc' };
         case 'volume4h_asc':
-          return { sort_key: 'volume4h', order: 'asc' };
+          return { order_by: 'volume4h', order: 'asc' };
         case 'volume4h_desc':
-          return { sort_key: 'volume4h', order: 'desc' };
+          return { order_by: 'volume4h', order: 'desc' };
         case 'volume12h_asc':
-          return { sort_key: 'volume12h', order: 'asc' };
+          return { order_by: 'volume12h', order: 'asc' };
         case 'volume12h_desc':
-          return { sort_key: 'volume12h', order: 'desc' };
+          return { order_by: 'volume12h', order: 'desc' };
         case 'feetvlratio_asc':
-          return { sort_key: 'feetvlratio', order: 'asc' };
+          return { order_by: 'feetvlratio', order: 'asc' };
         case 'feetvlratio_desc':
-          return { sort_key: 'feetvlratio', order: 'desc' };
+          return { order_by: 'feetvlratio', order: 'desc' };
         case 'feetvlratio30m_asc':
-          return { sort_key: 'feetvlratio30m', order: 'asc' };
+          return { order_by: 'feetvlratio30m', order: 'asc' };
         case 'feetvlratio30m_desc':
-          return { sort_key: 'feetvlratio30m', order: 'desc' };
+          return { order_by: 'feetvlratio30m', order: 'desc' };
         case 'feetvlratio1h_asc':
-          return { sort_key: 'feetvlratio1h', order: 'asc' };
+          return { order_by: 'feetvlratio1h', order: 'asc' };
         case 'feetvlratio1h_desc':
-          return { sort_key: 'feetvlratio1h', order: 'desc' };
+          return { order_by: 'feetvlratio1h', order: 'desc' };
         case 'feetvlratio2h_asc':
-          return { sort_key: 'feetvlratio2h', order: 'asc' };
+          return { order_by: 'feetvlratio2h', order: 'asc' };
         case 'feetvlratio2h_desc':
-          return { sort_key: 'feetvlratio2h', order: 'desc' };
+          return { order_by: 'feetvlratio2h', order: 'desc' };
         case 'feetvlratio4h_asc':
-          return { sort_key: 'feetvlratio4h', order: 'asc' };
+          return { order_by: 'feetvlratio4h', order: 'asc' };
         case 'feetvlratio4h_desc':
-          return { sort_key: 'feetvlratio4h', order: 'desc' };
+          return { order_by: 'feetvlratio4h', order: 'desc' };
         case 'feetvlratio12h_asc':
-          return { sort_key: 'feetvlratio12h', order: 'asc' };
+          return { order_by: 'feetvlratio12h', order: 'asc' };
         case 'feetvlratio12h_desc':
-          return { sort_key: 'feetvlratio12h', order: 'desc' };
+          return { order_by: 'feetvlratio12h', order: 'desc' };
         case 'lm_asc':
-          return { sort_key: 'lm', order: 'asc' };
+          return { order_by: 'lm', order: 'asc' };
         case 'lm_desc':
-          return { sort_key: 'lm', order: 'desc' };
+          return { order_by: 'lm', order: 'desc' };
         default:
-          return { sort_key: 'volume1h', order: 'asc' };
+          return { order_by: 'volume1h', order: 'asc' };
       }
     }
-    return { sort_key: 'volume1h', order: 'asc' };
+    return { order_by: 'volume1h', order: 'asc' };
   };
 
   // Fetch data for DAMM V2 tab
-  const fetchDammV2Tokens = async () => {
+  const fetchDammV2Tokens = async (search: string) => {
     try {
       setLoading(true);
       const { order_by, order } = getApiSortParams(sortOption, 'DAMM V2');
-      const response = await fetch(
-        `https://dammv2-api.meteora.ag/pools?page=1&limit=100&order_by=${order_by}&order=${order}`
-      );
-      if (!response.ok) {
-        throw new Error('Failed to fetch data from Meteora API');
+      const url = new URL(`https://dammv2-api.meteora.ag/pools`);
+      url.searchParams.set('page', '1');
+      url.searchParams.set('limit', '100');
+      url.searchParams.set('order_by', order_by);
+      url.searchParams.set('order', order);
+  
+      if (search) {
+        const trimmed = search.trim();
+        const isPossibleMint = /^[-_a-zA-Z0-9]{32,44}$/.test(trimmed); // kira-kira pattern base58
+        if (isPossibleMint) {
+          url.searchParams.set('token_a_mint', trimmed);
+        } else {
+          url.searchParams.set('token_a_symbol', trimmed.toUpperCase());
+        }
       }
+
+      const response = await fetch(url.toString());
+      if (!response.ok) throw new Error('Failed to fetch DAMM V2 data');
+
       const { data } = await response.json();
 
       const mappedTokens: TokenData[] = data.map((pool: any, index: number) => ({
@@ -154,21 +168,26 @@ const Scan: React.FC = () => {
   };
 
   // Fetch data for DLMM tab
-  const fetchDlmmTokens = async () => {
+  const fetchDlmmTokens = async (search: string) => {
     try {
       setLoading(true);
-      const { sort_key, order } = getApiSortParams(sortOption, 'DLMM');
-      const response = await fetch(
-        `https://dlmm-api.meteora.ag/pair/all_with_pagination?page=1&limit=100&sort_key=${sort_key}&order=${order}`
-      );
-      if (!response.ok) {
-        throw new Error('Failed to fetch DLMM data from API');
+      const { order_by, order } = getApiSortParams(sortOption, 'DLMM');
+
+      const url = new URL(`https://dlmm-api.meteora.ag/pair/all_with_pagination`);
+      // url.searchParams.set('page', '1');
+      // url.searchParams.set('limit', '100');
+      url.searchParams.set('sort_key', order_by);
+      url.searchParams.set('order', order);
+  
+      if (search) {
+        const trimmed = search.trim();
+        url.searchParams.set('search_term', trimmed)
       }
 
-      const data = await response.json();
-      console.log('DLMM Pairs from API:', data);
+      const response = await fetch(url.toString());
+      if (!response.ok) throw new Error('Failed to fetch DAMM V2 data');
 
-      // Map API response to TokenData interface
+      const data  = await response.json();
       const mappedTokens: TokenData[] = data.pairs.map((pair: any, index: number) => {
         const poolName = `${pair.name || 'Unknown'}`;
         const timestamp = Math.floor(Date.now() / 1000); // Placeholder since created_at is not available
@@ -204,9 +223,9 @@ const Scan: React.FC = () => {
     setActiveTab(tab);
     setTokens([]); // Clear tokens when switching tabs
     if (tab === 'DAMM V2') {
-      fetchDammV2Tokens();
+      fetchDammV2Tokens(searchTerm);
     } else if (tab === 'DLMM') {
-      fetchDlmmTokens();
+      fetchDlmmTokens(searchTerm);
     }
   };
 
@@ -238,18 +257,18 @@ const Scan: React.FC = () => {
   // Fetch data on component mount and set up auto-refresh
   useEffect(() => {
     if (activeTab === 'DAMM V2') {
-      fetchDammV2Tokens();
+      fetchDammV2Tokens(searchTerm);
     } else if (activeTab === 'DLMM') {
-      fetchDlmmTokens();
+      fetchDlmmTokens(searchTerm);
     }
   
     let intervalId: NodeJS.Timeout | null = null;
     if (isAutoRefresh) {
       intervalId = setInterval(() => {
         if (activeTab === 'DAMM V2') {
-          fetchDammV2Tokens();
+          fetchDammV2Tokens(searchTerm);
         } else if (activeTab === 'DLMM') {
-          fetchDlmmTokens();
+          fetchDlmmTokens(searchTerm);
         }
       }, 10000);
     }
@@ -257,7 +276,7 @@ const Scan: React.FC = () => {
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isAutoRefresh, activeTab, sortOption]);  
+  }, [isAutoRefresh, activeTab, sortOption, searchTerm]);  
 
   return (
     <div className="min-h-screen bg-black text-white mt-7">
@@ -288,6 +307,8 @@ const Scan: React.FC = () => {
         <div className="w-full md:flex-1 md:mx-6">
           <input
             type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by contract address, name, or symbol"
             className="w-full border border-gray-700 rounded text-gray-400 px-4 py-2 text-sm hover:border-orange-500 focus:outline-none focus:text-white focus:border-orange-500"
           />
@@ -592,7 +613,7 @@ const Scan: React.FC = () => {
                         GMGN
                       </a>
                       <a
-                        href={`https://www.meteora.ag/dammv2/${token.poolAddress}`}
+                        href={`https://www.meteora.ag/${activeTab === 'DLMM'?'dlmm':'dammv2'}/${token.poolAddress}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-orange-500 hover:underline mr-2"
